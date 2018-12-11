@@ -11,16 +11,7 @@ namespace bra{
     class DiffRobot {
 
         private:
-            MonsterDriver* MotorLeft;
-            MonsterDriver* MotorRight;
-            
-            Encoder* EncoderLeft;
-            Encoder* EncoderRight;
-            
-            PID* VelocityControllerLeft;
-            PID* VelocityControllerRight;
-
-            float m_wheelLeftRadius, m_wheelRightRadius; // Wheel's Radius
+           float m_wheelLeftRadius, m_wheelRightRadius; // Wheel's Radius
             float m_lengthWheels; // Distance beetween wheels
             float m_velocity[2]; // Linear and Angular Velocity
             float m_wheelsVelocityTarget[2]; // Desired Wheels Velocity
@@ -31,6 +22,14 @@ namespace bra{
         public:
             DiffRobot(float p_wheelLeftRadius, float p_wheelRightRadius, float p_lengthWheels);
             ~DiffRobot();
+            MonsterDriver* MotorLeft;
+            MonsterDriver* MotorRight;
+                     
+            PID* VelocityControllerLeft;
+            PID* VelocityControllerRight;
+            
+            Encoder* EncoderLeft;
+            Encoder* EncoderRight;
 
             void setupMonsterDrivers(   // Left Motor
                                         PinName p_motorLeftEnablePin,

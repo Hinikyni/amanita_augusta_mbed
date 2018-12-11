@@ -45,17 +45,19 @@ void bra::DiffRobot::setupEncoders(PinName p_phasePinALeft, PinName p_phasePinBL
                                     PinName p_phasePinARight, PinName p_phasePinBRight, void (*callbackRiseARight)(), void (*callbackChangeBRight)(), int p_resolutionRight, bool p_sideRight
                                 ) 
 {
-    EncoderLeft = new Encoder(p_phasePinALeft, p_phasePinBLeft, callbackRiseALeft, callbackChangeBLeft, p_resolutionLeft = 1, p_sideLeft = Encoder::LEFT);
-    EncoderRight = new Encoder(p_phasePinARight, p_phasePinBRight, callbackRiseARight, callbackChangeBRight, p_resolutionRight = 1, p_sideRight = Encoder::RIGHT);
+    EncoderLeft = new Encoder(p_phasePinALeft, p_phasePinBLeft, callbackRiseALeft, callbackChangeBLeft, p_resolutionLeft, Encoder::LEFT);
+    EncoderRight = new Encoder(p_phasePinARight, p_phasePinBRight, callbackRiseARight, callbackChangeBRight, p_resolutionRight, Encoder::RIGHT);
 }
 
 void bra::DiffRobot::setupController(float p_KpLeft, float p_KiLeft, float p_KdLeft, float p_KpRight, float p_KiRight, float p_KdRight, float p_interval) {
     
-    VelocityControllerLeft = new PID(p_KpLeft, p_KiLeft, p_KdLeft, p_interval);
-    VelocityControllerRight = new PID(p_KpRight, p_KiRight, p_KdRight, p_interval);
+    VelocityControllerLeft = new PID(p_KpLeft, p_KiLeft, p_KdLeft, p_interval*0.001);
+    VelocityControllerRight = new PID(p_KpRight, p_KiRight, p_KdRight, p_interval*0.001);
 
     VelocityControllerLeft->setOutputLimits(-1.0, 1.0);
     VelocityControllerRight->setOutputLimits(-1.0, 1.0);
+    VelocityControllerLeft->setInputLimits(-1.0, 1.0);
+    VelocityControllerRight->setInputLimits(-1.0, 1.0);
 }
 
 void bra::DiffRobot::setVelocity(float p_linear, float p_angular){

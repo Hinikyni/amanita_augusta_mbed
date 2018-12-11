@@ -14,8 +14,6 @@ namespace bra{
             bool m_side;                    // Left or Right side
             bool m_enableStatus;
             enum {A, B};
-            void risePhaseAEvent();
-            void changePhaseBEvent();
         public:
             enum {LEFT, RIGHT};
             Encoder(PinName p_phasePinA, PinName p_phasePinB, void (*callbackRiseA)(), void (*callbackChangeB)(), int p_resolution = 1, bool p_side = LEFT);
@@ -25,6 +23,8 @@ namespace bra{
             int readPulse();
             float readRotates();
             int getResolution();
+            void risePhaseAEvent();
+            void changePhaseBEvent();
     };
 
 

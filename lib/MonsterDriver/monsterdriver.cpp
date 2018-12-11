@@ -7,7 +7,9 @@ bra::MonsterDriver::MonsterDriver(  PinName p_motorEnablePin, PinName p_motorPwm
     m_motorEnablePin = new DigitalOut(p_motorEnablePin, bra::MonsterDriver::LOW);  // INA: Clockwise input
     m_motorDirPin_A = new DigitalOut(p_motorDirPin_A, bra::MonsterDriver::LOW);    // INB: Counter-clockwise input
     m_motorDirPin_B = new DigitalOut(p_motorDirPin_B, bra::MonsterDriver::LOW);    // EN: Status of switches output 
-
+    
+    m_motorEnablePin->write(1);
+    
     m_motorPwmPin = new PwmOut(p_motorPwmPin);   // PWM Pin
     m_motorPwmPin->period_us(this->m_pwmPeriod);                // PWM Frequency [20kHz]
     m_motorPwmPin->write(this->m_pwmValue);                  // PWM Initial Output [0%]
