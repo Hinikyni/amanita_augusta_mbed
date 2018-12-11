@@ -55,6 +55,10 @@ int main() {
 
 void controlLoop(){
 	AmanitaAugusta.run();
+	float* velocity = AmanitaAugusta.getVelocity();
+	sendVelocityMsg.linear.x = *velocity;
+	sendVelocityMsg.angular.z = *(velocity+1);
+	sendVelocity.publish(&sendVelocityMsg);
 }
 
 void receiveVelocityFunc(const geometry_msgs::Twist& msg){
@@ -71,7 +75,6 @@ void lChangeB(){
 
 void rRiseA(){
 	AmanitaAugusta.EncoderRight->risePhaseAEvent();
-
 }
 
 void rChangeB(){
