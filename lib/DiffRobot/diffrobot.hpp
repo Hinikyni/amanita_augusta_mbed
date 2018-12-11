@@ -17,17 +17,16 @@ namespace bra{
             Encoder* EncoderLeft;
             Encoder* EncoderRight;
             
-            PID* velocityControllerLeft;
-            PID* velocityControllerRight;
+            PID* VelocityControllerLeft;
+            PID* VelocityControllerRight;
 
             float m_wheelLeftRadius, m_wheelRightRadius; // Wheel's Radius
             float m_lengthWheels; // Distance beetween wheels
-
-            float m_velocityTarget[2]; // Desired Linear and Angular Velocity 
-            float m_velocity[2]; // True Linear and Angular Velocity
-            float m_wheelsVelocityTarget[2];
-            float m_wheelsVelocity[2];
-
+            float m_velocity[2]; // Linear and Angular Velocity
+            float m_wheelsVelocityTarget[2]; // Desired Wheels Velocity
+            float m_wheelsVelocity[2]; // Wheels Velocity
+            
+            const float m_PI = 3.14159265359;
             enum {LINEAR, ANGULAR};
         public:
             DiffRobot(float p_wheelLeftRadius, float p_wheelRightRadius, float p_lengthWheels);
@@ -56,8 +55,8 @@ namespace bra{
                                     float p_interval
                                 );
 
-            void setVelocity(float p_linear, float p_angular);   // Velocity in m/s
-            float* getVelocity();                 // Return velocity in m/s
+            void setVelocity(float p_linear, float p_angular);   // Set Velocity in m/s and rad/s
+            float* getVelocity();   // Return velocity in m/s and rad/s
             void run();
     };
 }

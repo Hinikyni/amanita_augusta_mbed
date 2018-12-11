@@ -12,7 +12,6 @@ bra::MonsterDriver::MonsterDriver(  PinName p_motorEnablePin, PinName p_motorPwm
     m_motorPwmPin->period_us(this->m_pwmPeriod);                // PWM Frequency [20kHz]
     m_motorPwmPin->write(this->m_pwmValue);                  // PWM Initial Output [0%]
 
-
 }
 
 bra::MonsterDriver::~MonsterDriver(){
@@ -30,16 +29,25 @@ bra::MonsterDriver::~MonsterDriver(){
 void bra::MonsterDriver::setPWM(float p_pwmValue){
     float pwm;
     
-    if(p_pwmValue < 1.0 && p_pwmValue > 0.0){
+    if(p_pwmValue <= 1.0 && p_pwmValue >= -1.0){
         pwm = p_pwmValue;
-    } else if(p_pwmValue > 1) {
-        pwm = 1.0f;
+    } else if(p_pwmValue > 1.0) {
+        pwm = 1.0;
+    } else if(p_pwmValue < -1.0) {
+        pwm = -1.0;
+    }
+    
+    if(pwm > 0.0) { 
+        this->setDirection(FORWARD);
     } else {
-        pwm = 0.0f;
+        this->setDirection(BACKWARD);
     }
 
-    m_motorPwmPin->write(pwm);
+    m_motorPwmPin->write(fabs(pwm));
+}
 
+float bra::MonsterDriver::getPWM(){
+    return m_pwmValue;
 }
 
 void bra::MonsterDriver::setDirection(bra::MonsterDriver::Direction p_direction){

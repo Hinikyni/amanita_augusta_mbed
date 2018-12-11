@@ -12,12 +12,12 @@ namespace bra{
             DigitalOut* m_motorDirPin_B;
             PwmOut* m_motorPwmPin;
 
-            const float m_pwmValue {0.0f};
-            const int m_pwmPeriod {50}; // us [ 20kHz ]
+            float m_pwmValue {0.0f};
+            const int m_pwmPeriod {50}; // us [ Frequency: 20kHz ]
             
         public:
             enum {LOW, HIGH};
-            enum Direction {CW, CCW};
+            enum Direction {FORWARD, BACKWARD};
             MonsterDriver(  
                             PinName p_motorEnablePin, 
                             PinName p_motorPwmPin, 
@@ -27,6 +27,7 @@ namespace bra{
             ~MonsterDriver(void);
             // Set the ouput duty-cycle, specified as a percentage (float)
             void setPWM(float p_pwmValue);
+            float getPWM();
             // Set the direction
             void setDirection(Direction p_direction);
             // Enable or Disable

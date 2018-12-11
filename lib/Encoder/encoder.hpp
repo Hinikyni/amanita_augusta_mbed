@@ -24,6 +24,7 @@ namespace bra{
             void disable();
             int readPulse();
             float readRotates();
+            int getResolution();
     };
 
 

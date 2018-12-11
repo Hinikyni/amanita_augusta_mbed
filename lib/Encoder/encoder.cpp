@@ -70,3 +70,7 @@ float bra::Encoder::readRotates(){
         return 0;
     }
 }
+
+int bra::Encoder::getResolution(){
+    return m_resolution;
+}
