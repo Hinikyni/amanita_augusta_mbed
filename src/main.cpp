@@ -62,7 +62,7 @@ void controlLoop(){
 }
 
 void receiveVelocityFunc(const geometry_msgs::Twist& msg){
-	//AmanitaAugusta.setVelocity(msg.linear.x, msg.angular.z);
+	AmanitaAugusta.setVelocity(msg.linear.x, msg.angular.z);
 }
 
 void lRiseA(){
