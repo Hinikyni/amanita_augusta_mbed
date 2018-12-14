@@ -1,8 +1,8 @@
 #include <mbed.h>
 
 // Robot Struct
-const float WHEELS_RADIUS = 0.05;
-const float LENGHT_WHEELS = 0.12;
+const float WHEELS_RADIUS = 0.031;
+const float LENGHT_WHEELS = 0.175;
 
 // Robot Monster Shield Pins
 // Left Motor
@@ -18,11 +18,11 @@ const PinName R_CCW     = D9;
 
 // Robot Encoder Pins
 // Left Wheel
-const PinName L_PHASE_A = D2;
-const PinName L_PHASE_B = D3;
+const PinName L_PHASE_A = PH_0;
+const PinName L_PHASE_B = PH_1;
 // Right Wheel
-const PinName R_PHASE_A = D10;
-const PinName R_PHASE_B = D11;
+const PinName R_PHASE_A = PC_14;
+const PinName R_PHASE_B = PC_15;
 // Robot Encoder Settings
 // Left Wheel
 const int L_RESOLUTION = 300;

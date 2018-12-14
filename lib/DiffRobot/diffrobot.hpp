@@ -11,11 +11,11 @@ namespace bra{
     class DiffRobot {
 
         private:
-           float m_wheelLeftRadius, m_wheelRightRadius; // Wheel's Radius
+            float m_wheelLeftRadius, m_wheelRightRadius; // Wheel's Radius
             float m_lengthWheels; // Distance beetween wheels
-            float m_velocity[2]; // Linear and Angular Velocity
-            float m_wheelsVelocityTarget[2]; // Desired Wheels Velocity
-            float m_wheelsVelocity[2]; // Wheels Velocity
+            volatile float m_velocity[2]; // Linear and Angular Velocity
+            volatile float m_wheelsVelocityTarget[2]; // Desired Wheels Velocity
+            volatile float m_wheelsVelocity[2]; // Wheels Velocity
             
             const float m_PI = 3.14159265359;
             enum {LINEAR, ANGULAR};
@@ -55,7 +55,7 @@ namespace bra{
                                 );
 
             void setVelocity(float p_linear, float p_angular);   // Set Velocity in m/s and rad/s
-            float* getVelocity();   // Return velocity in m/s and rad/s
+            volatile float* getVelocity();   // Return velocity in m/s and rad/s
             void run();
     };
 }

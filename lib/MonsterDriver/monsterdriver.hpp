@@ -12,7 +12,7 @@ namespace bra{
             DigitalOut* m_motorDirPin_B;
             PwmOut* m_motorPwmPin;
 
-            float m_pwmValue {0.0f};
+            volatile float m_pwmValue {0.0f};
             const int m_pwmPeriod {50}; // us [ Frequency: 20kHz ]
             
         public:

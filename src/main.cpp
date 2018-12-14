@@ -55,9 +55,8 @@ int main() {
 
 void controlLoop(){
 	AmanitaAugusta.run();
-	float* velocity = AmanitaAugusta.getVelocity();
-	sendVelocityMsg.linear.x = *velocity;
-	sendVelocityMsg.angular.z = *(velocity+1);
+	// [FIXING] sendVelocityMsg.linear.x = AmanitaAugusta.EncoderLeft->readPulse();
+	// [FIXING] sendVelocityMsg.angular.z = AmanitaAugusta.MotorLeft->getPWM()*100;//*(velocity+1);
 	sendVelocity.publish(&sendVelocityMsg);
 }
 

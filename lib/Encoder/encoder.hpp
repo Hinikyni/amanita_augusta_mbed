@@ -8,11 +8,11 @@ namespace bra{
     class Encoder{
         private:
             InterruptIn* m_phasePin[2];         // Phase A and Phase B Pins
-            unsigned long m_pulseCounter;   // Pulses Counted
-            int m_resolution;
-            bool m_phaseBValue;           // Last read value of A and B
-            bool m_side;                    // Left or Right side
-            bool m_enableStatus;
+            volatile unsigned long m_pulseCounter;   // Pulses Counted
+            volatile int m_resolution;
+            volatile bool m_phaseBValue;           // Last read value of A and B
+            volatile bool m_side;                    // Left or Right side
+            volatile bool m_enableStatus;
             enum {A, B};
         public:
             enum {LEFT, RIGHT};

@@ -44,8 +44,8 @@ void bra::MonsterDriver::setPWM(float p_pwmValue){
     } else {
         this->setDirection(BACKWARD);
     }
-
-    m_motorPwmPin->write(fabs(pwm));
+    m_pwmValue = pwm;
+    m_motorPwmPin->write(fabs(m_pwmValue));
 }
 
 float bra::MonsterDriver::getPWM(){
@@ -53,8 +53,8 @@ float bra::MonsterDriver::getPWM(){
 }
 
 void bra::MonsterDriver::setDirection(bra::MonsterDriver::Direction p_direction){
-    m_motorDirPin_A->write(!p_direction);
-    m_motorDirPin_B->write(p_direction);
+    m_motorDirPin_A->write(((bool)p_direction));
+    m_motorDirPin_B->write(!((bool)p_direction));
 }
 
 void bra::MonsterDriver::enable(){
