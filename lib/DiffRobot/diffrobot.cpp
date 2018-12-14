@@ -72,6 +72,20 @@ volatile float* bra::DiffRobot::getVelocity(){
     return m_velocity;
 }
 
+float bra::DiffRobot::getVelocity(int wheel){
+    return m_wheelsVelocity[wheel];
+}
+
+void bra::DiffRobot::enable(){
+    MotorLeft->enable();
+    MotorRight->enable();
+}
+
+void bra::DiffRobot::disable(){
+    MotorLeft->disable();
+    MotorRight->disable();
+}
+
 void bra::DiffRobot::run(){
     // Update variables
     //? Wheel Speed = (2*pi*R)*(Pulses Counted / EncoderResolution) / (IntervalSinceLastCount)

@@ -55,8 +55,12 @@ namespace bra{
                                 );
 
             void setVelocity(float p_linear, float p_angular);   // Set Velocity in m/s and rad/s
-            volatile float* getVelocity();   // Return velocity in m/s and rad/s
             void run();
+            void enable();
+            void disable();
+            volatile float* getVelocity();   // Return velocity in m/s and rad/s
+            float getVelocity(int);
+            
     };
 }
 #endif
