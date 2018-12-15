@@ -1,4 +1,9 @@
 #include <mbed.h>
+#include "ros.h"
+#include <geometry_msgs/Twist.h>
+#include <std_msgs/Float32.h>
+#include <std_msgs/Bool.h>
+#include <string>
 
 // Robot Struct
 const float WHEELS_RADIUS = 0.031;
@@ -38,3 +43,19 @@ const float R_KP = 1, R_KI = 0, R_KD = 0;
 // Update
 const float RATE_MS = 150;
 const float RATE = RATE_MS/1000;
+
+// ROS Setup
+ros::NodeHandle node;
+// Messages
+geometry_msgs::Twist sendVelocityMsg;
+std_msgs::Float32 leftWheelVelocity;
+std_msgs::Float32 rightWheelVelocity;
+
+// Callback
+void receiveVelocityFunc(const geometry_msgs::Twist& msg);
+void enableRobot(const std_msgs::Bool& msg);
+void lRiseA();
+void lChangeB();
+void rRiseA();
+void rChangeB();
+void controlLoop();

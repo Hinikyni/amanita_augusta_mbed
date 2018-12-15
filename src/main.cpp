@@ -5,37 +5,23 @@
 #include <geometry_msgs/Twist.h>
 #include <std_msgs/Float32.h>
 #include <std_msgs/Bool.h>
+#include <string>
 
+std::string robotName = "amanita_augusta";
 
-// Robot Name: amanita_augusta 
-
-// ROS Setup
-ros::NodeHandle node;
-// Messages
-geometry_msgs::Twist sendVelocityMsg;
-std_msgs::Float32 leftWheelVelocity;
-std_msgs::Float32 rightWheelVelocity;
-// Callback
-void receiveVelocityFunc(const geometry_msgs::Twist& msg);
-void lRiseA();
-void lChangeB();
-void rRiseA();
-void rChangeB();
-void controlLoop();
-void turnOff();
 // Publisher
-ros::Publisher sendVelocity("amanita_augusta_mbed/velocity", &sendVelocityMsg);
-ros::Publisher sendLeftWheelVelocity("amanita_augusta_mbed/left_wheel_velocity", &leftWheelVelocity);
-ros::Publisher sendRightWheelVelocity("amanita_augusta_mbed/right_wheel_velocity", &rightWheelVelocity);
+ros::Publisher sendVelocity((robotName+"_mbed/velocity").c_str(), &sendVelocityMsg);
+ros::Publisher sendLeftWheelVelocity((robotName+"_mbed/left_wheel_velocity").c_str(), &leftWheelVelocity);
+ros::Publisher sendRightWheelVelocity((robotName+"_mbed/right_wheel_velocity").c_str(), &rightWheelVelocity);
 // Subscriber
-ros::Subscriber<geometry_msgs::Twist> receiveVelocity("amanita_augusta_pc/velocity", receiveVelocityFunc);
-ros::Subscriber<std_msgs::Bool> reciveTurnOff("amanita_augusta_pc/enable", turnOff);
+ros::Subscriber<std_msgs::Bool> reciveTurnOff((robotName+"_pc/enable").c_str(), enableRobot);
+ros::Subscriber<geometry_msgs::Twist> receiveVelocity((robotName+"_pc/cmd_vel").c_str(), receiveVelocityFunc);
 // Diff Robot
 bra::DiffRobot AmanitaAugusta(WHEELS_RADIUS, WHEELS_RADIUS, LENGHT_WHEELS);
 
-// mbed
+// Timers and Tickers
 Ticker mbedRate;
-Timer mbedTimer; // 20Hz
+Timer mbedTimer; 
 
 int main() {
 	AmanitaAugusta.setupMonsterDrivers( A0, L_PWM, L_CW, L_CCW,  R_ENABLE, R_PWM, R_CW, R_CCW);
@@ -47,12 +33,13 @@ int main() {
 	node.advertise(sendLeftWheelVelocity);
 	node.advertise(sendRightWheelVelocity);
 	node.subscribe(receiveVelocity);
+	node.subscribe(reciveTurnOff);
 	
 	mbedRate.attach(&controlLoop, RATE);
 	mbedTimer.start();
 
 	while(true) {
-		if(mbedTimer.read() >= RATE/10){
+		if(mbedTimer.read_ms() >= RATE_MS/10){
 			node.spinOnce();
 			mbedTimer.reset();
 		}
@@ -62,8 +49,8 @@ int main() {
 void controlLoop(){
 	AmanitaAugusta.run();
 
-	sendVelocityMsg.linear.x = AmanitaAugusta.EncoderLeft->readPulse();
-	sendVelocityMsg.angular.z = AmanitaAugusta.MotorLeft->getPWM()*100;//*(velocity+1);
+	//! [FIXING] sendVelocityMsg.linear.x = AmanitaAugusta.EncoderLeft->readPulse();
+	//! [FIXING] sendVelocityMsg.angular.z = AmanitaAugusta.MotorLeft->getPWM()*100;//*(velocity+1);
 	sendVelocity.publish(&sendVelocityMsg); // Linear and Angular Velocity
 
 	leftWheelVelocity.data = AmanitaAugusta.getVelocity(bra::Encoder::LEFT);  	
@@ -78,7 +65,7 @@ void receiveVelocityFunc(const geometry_msgs::Twist& msg){
 	AmanitaAugusta.setVelocity(msg.linear.x, msg.angular.z);
 }
 
-void turnOff(const std_msgs::Bool& msg){
+void enableRobot(const std_msgs::Bool& msg){
 	if(msg.data) AmanitaAugusta.enable();
 	else AmanitaAugusta.disable();
 }

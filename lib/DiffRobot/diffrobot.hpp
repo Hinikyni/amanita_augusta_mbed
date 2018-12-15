@@ -13,10 +13,11 @@ namespace bra{
         private:
             float m_wheelLeftRadius, m_wheelRightRadius; // Wheel's Radius
             float m_lengthWheels; // Distance beetween wheels
+
             volatile float m_velocity[2]; // Linear and Angular Velocity
             volatile float m_wheelsVelocityTarget[2]; // Desired Wheels Velocity
             volatile float m_wheelsVelocity[2]; // Wheels Velocity
-            
+        
             const float m_PI = 3.14159265359;
             enum {LINEAR, ANGULAR};
         public:

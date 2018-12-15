@@ -4,19 +4,21 @@
 #include <monsterdriver.hpp>
 #include <encoder.hpp>
 #include <PID.h>
+#include <string>
 
 bra::DiffRobot::DiffRobot(float p_wheelLeftRadius, float p_wheelRightRadius, float p_lengthWheels){
+    // Initial Variables
     m_wheelLeftRadius = p_wheelLeftRadius;
     m_wheelRightRadius = p_wheelRightRadius;
     m_lengthWheels = p_lengthWheels;
-
+    // Default Velocity
     m_velocity[LINEAR] = 0;
     m_velocity[ANGULAR] = 0;
-
-    m_wheelsVelocityTarget[Encoder::LEFT] = 0;
-    m_wheelsVelocityTarget[Encoder::RIGHT] = 0;
     m_wheelsVelocity[Encoder::LEFT] = 0;
     m_wheelsVelocity[Encoder::RIGHT] = 0;
+    // Default SetPoint
+    m_wheelsVelocityTarget[Encoder::LEFT] = 0;
+    m_wheelsVelocityTarget[Encoder::RIGHT] = 0;
 };
 
 bra::DiffRobot::~DiffRobot(){
