@@ -7,26 +7,26 @@
 #include <std_msgs/Bool.h>
 #include <string>
 
-std::string robotName = "amanita_augusta";
+std::string robotName = "amanita_cecilia";
 
-// Publisher
-ros::Publisher sendVelocity((robotName+"_mbed/velocity").c_str(), &sendVelocityMsg);
-ros::Publisher sendLeftWheelVelocity((robotName+"_mbed/left_wheel_velocity").c_str(), &leftWheelVelocity);
-ros::Publisher sendRightWheelVelocity((robotName+"_mbed/right_wheel_velocity").c_str(), &rightWheelVelocity);
-// Subscriber
-ros::Subscriber<std_msgs::Bool> reciveTurnOff((robotName+"_pc/enable").c_str(), enableRobot);
-ros::Subscriber<geometry_msgs::Twist> receiveVelocity((robotName+"_pc/cmd_vel").c_str(), receiveVelocityFunc);
+// Publisher [ _mbed/ ]
+ros::Publisher sendVelocity("amanita_cecilia_mbed/velocity", &sendVelocityMsg);
+ros::Publisher sendLeftWheelVelocity("amanita_cecilia_mbed/left_wheel_velocity", &leftWheelVelocity);
+ros::Publisher sendRightWheelVelocity("amanita_cecilia_mbed/right_wheel_velocity", &rightWheelVelocity);
+// Subscriber [ _pc/ ]
+ros::Subscriber<std_msgs::Bool> reciveTurnOff("amanita_cecilia_pc/enable", enableRobot);
+ros::Subscriber<geometry_msgs::Twist> receiveVelocity("amanita_cecilia_pc/cmd_vel", receiveVelocityFunc);
 // Diff Robot
-bra::DiffRobot AmanitaAugusta(WHEELS_RADIUS, WHEELS_RADIUS, LENGHT_WHEELS);
+bra::DiffRobot Robot(WHEELS_RADIUS, WHEELS_RADIUS, LENGHT_WHEELS);
 
 // Timers and Tickers
 Ticker mbedRate;
 Timer mbedTimer; 
 
 int main() {
-	AmanitaAugusta.setupMonsterDrivers( A0, L_PWM, L_CW, L_CCW,  R_ENABLE, R_PWM, R_CW, R_CCW);
-	AmanitaAugusta.setupEncoders(L_PHASE_A, L_PHASE_B, lRiseA, lChangeB, L_RESOLUTION, 0, R_PHASE_A, R_PHASE_B, rRiseA, rChangeB, R_RESOLUTION, 1);
-	AmanitaAugusta.setupController(L_KP, L_KI, L_KD, R_KP, R_KI, R_KD, RATE_MS);
+	Robot.setupMonsterDrivers( L_ENABLE, L_PWM, L_CW, L_CCW,  R_ENABLE, R_PWM, R_CW, R_CCW);
+	Robot.setupEncoders(L_PHASE_A, L_PHASE_B, lRiseA, lChangeB, L_RESOLUTION, 0, R_PHASE_A, R_PHASE_B, rRiseA, rChangeB, R_RESOLUTION, 1);
+	Robot.setupController(L_KP, L_KI, L_KD, R_KP, R_KI, R_KD, RATE_MS);
 
 	node.initNode();
 	node.advertise(sendVelocity);
@@ -37,51 +37,55 @@ int main() {
 	
 	mbedRate.attach(&controlLoop, RATE);
 	mbedTimer.start();
+	
 
 	while(true) {
 		if(mbedTimer.read_ms() >= RATE_MS/10){
 			node.spinOnce();
 			mbedTimer.reset();
+			// Disable robot motor if ROS connection has been lost
+			if(!node.connected() && Robot.getStatus()) { Robot.disable(); }
+			else if(node.connected() && !Robot.getStatus()) { Robot.enable(); }
 		}
 	}
 }
 
 void controlLoop(){
-	AmanitaAugusta.run();
+	Robot.run();
 
-	//! [FIXING] sendVelocityMsg.linear.x = AmanitaAugusta.EncoderLeft->readPulse();
-	//! [FIXING] sendVelocityMsg.angular.z = AmanitaAugusta.MotorLeft->getPWM()*100;//*(velocity+1);
+	volatile float* velocity = Robot.getVelocity();
+	sendVelocityMsg.linear.x = velocity[bra::DiffRobot::LINEAR];
+	sendVelocityMsg.angular.z = velocity[bra::DiffRobot::ANGULAR];
 	sendVelocity.publish(&sendVelocityMsg); // Linear and Angular Velocity
 
-	leftWheelVelocity.data = AmanitaAugusta.getVelocity(bra::Encoder::LEFT);  	
-	rightWheelVelocity.data = AmanitaAugusta.getVelocity(bra::Encoder::RIGHT); 	
+	leftWheelVelocity.data = Robot.getVelocity(bra::Encoder::LEFT);  	
+	rightWheelVelocity.data = Robot.getVelocity(bra::Encoder::RIGHT); 	
 
 	sendLeftWheelVelocity.publish(&leftWheelVelocity);	// Left Wheel Velocity
 	sendRightWheelVelocity.publish(&rightWheelVelocity);// Right Wheel Velocity
-	
 }
 
 void receiveVelocityFunc(const geometry_msgs::Twist& msg){
-	AmanitaAugusta.setVelocity(msg.linear.x, msg.angular.z);
+	Robot.setVelocity(msg.linear.x, msg.angular.z);
 }
 
 void enableRobot(const std_msgs::Bool& msg){
-	if(msg.data) AmanitaAugusta.enable();
-	else AmanitaAugusta.disable();
+	if(msg.data) Robot.enable();
+	else Robot.disable();
 }
 
 void lRiseA(){
-	AmanitaAugusta.EncoderLeft->risePhaseAEvent();
+	Robot.EncoderLeft->risePhaseAEvent();
 }
 
 void lChangeB(){
-	AmanitaAugusta.EncoderLeft->changePhaseBEvent();
+	Robot.EncoderLeft->changePhaseBEvent();
 }
 
 void rRiseA(){
-	AmanitaAugusta.EncoderRight->risePhaseAEvent();
+	Robot.EncoderRight->risePhaseAEvent();
 }
 
 void rChangeB(){
-	AmanitaAugusta.EncoderRight->changePhaseBEvent();
+	Robot.EncoderRight->changePhaseBEvent();
 }

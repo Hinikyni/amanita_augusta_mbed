@@ -13,13 +13,12 @@ namespace bra{
         private:
             float m_wheelLeftRadius, m_wheelRightRadius; // Wheel's Radius
             float m_lengthWheels; // Distance beetween wheels
-
+            bool m_robotStatus;
             volatile float m_velocity[2]; // Linear and Angular Velocity
             volatile float m_wheelsVelocityTarget[2]; // Desired Wheels Velocity
             volatile float m_wheelsVelocity[2]; // Wheels Velocity
         
             const float m_PI = 3.14159265359;
-            enum {LINEAR, ANGULAR};
         public:
             DiffRobot(float p_wheelLeftRadius, float p_wheelRightRadius, float p_lengthWheels);
             ~DiffRobot();
@@ -31,6 +30,7 @@ namespace bra{
             
             Encoder* EncoderLeft;
             Encoder* EncoderRight;
+            enum {LINEAR, ANGULAR};
 
             void setupMonsterDrivers(   // Left Motor
                                         PinName p_motorLeftEnablePin,
@@ -59,6 +59,7 @@ namespace bra{
             void run();
             void enable();
             void disable();
+            bool getStatus();
             volatile float* getVelocity();   // Return velocity in m/s and rad/s
             float getVelocity(int);
             

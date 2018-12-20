@@ -1,4 +1,5 @@
 #include <mbed.h>
+
 #include "encoder.hpp"
 
 bra::Encoder::Encoder(PinName p_phasePinA, PinName p_phasePinB, void (*CallbackRiseA)(), void (*CallbackChangeB)(), int p_resolution, bool p_side){
@@ -6,14 +7,16 @@ bra::Encoder::Encoder(PinName p_phasePinA, PinName p_phasePinB, void (*CallbackR
     m_phasePin[A] = new InterruptIn(p_phasePinA);
     m_phasePin[B] = new InterruptIn(p_phasePinB);
     m_side = p_side;
-
-    m_phasePin[A]->rise(CallbackRiseA);    // Change Event Phase A
-    m_phasePin[B]->rise(CallbackChangeB);    // Change Event Phase B    
-    m_phasePin[B]->fall(CallbackChangeB);    // Change Event Phase B
-
-    m_pulseCounter = 0;
-    m_enableStatus = true;
     m_resolution = p_resolution;
+
+    m_phasePin[A]->rise(CallbackRiseA);     // Rise Event Phase A
+    m_phasePin[B]->rise(CallbackChangeB);   // Change Event Phase B    
+    m_phasePin[B]->fall(CallbackChangeB);   // Change Event Phase B
+    
+    m_phaseBValue = (bool)m_phasePin[B]->read();
+    m_pulseCounter = 0;
+    
+    m_enableStatus = true;
 }
 
 bra::Encoder::~Encoder(){
@@ -28,17 +31,11 @@ bra::Encoder::~Encoder(){
 void bra::Encoder::risePhaseAEvent(){
     if(m_enableStatus){
         if(m_phaseBValue){
-            if(m_side){
-                m_pulseCounter--;
-            } else {
-                m_pulseCounter++;
-            }
+            if(m_side) m_pulseCounter--;
+            else m_pulseCounter++;
         } else {
-            if(m_side){
-                m_pulseCounter++;
-            } else {
-                m_pulseCounter--;
-            }
+            if(m_side) m_pulseCounter++;
+            else m_pulseCounter--;
         }
     } else {
         m_pulseCounter = 0;
@@ -46,7 +43,7 @@ void bra::Encoder::risePhaseAEvent(){
 }
 
 void bra::Encoder::changePhaseBEvent(){
-    m_phaseBValue = !m_phaseBValue;
+    m_phaseBValue = (bool)m_phasePin[B]->read();
 }
 
 void bra::Encoder::enable(){
