@@ -146,12 +146,16 @@ public:
      * @param bias The bias for the controller output.
      */
     void setBias(float bias);
-
+    
+    // set the deadzone
+    void setDeadzone(float top, float bottom);
+    
     /**
      * PID calculation.
      *
      * @return The controller output as a float between outMin and outMax.
      */
+        
     float compute(void);
 
     //Getters.
@@ -186,6 +190,7 @@ private:
     float prevProcessVariable_;
     //The output that affects the process variable.
     float controllerOutput_; 
+    float controllerOutputSum_;
     float prevControllerOutput_;
 
     //We work in % for calculations so these will scale from
@@ -201,7 +206,10 @@ private:
     float accError_;
     //The controller output bias.
     float bias_;
-
+    //The controller deadzone.
+    float deadzoneTop_;
+    float deadzoneBottom_;
+        
     //The interval between samples.
     float tSample_;          
 

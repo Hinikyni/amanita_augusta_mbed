@@ -37,8 +37,6 @@ int main() {
 	
 	mbedRate.attach(&controlLoop, RATE);
 	mbedTimer.start();
-	
-
 	while(true) {
 		if(mbedTimer.read_ms() >= RATE_MS/10){
 			node.spinOnce();

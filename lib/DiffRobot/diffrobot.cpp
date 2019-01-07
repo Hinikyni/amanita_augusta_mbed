@@ -64,8 +64,8 @@ void bra::DiffRobot::setupController(float p_KpLeft, float p_KiLeft, float p_KdL
 }
 
 void bra::DiffRobot::setVelocity(float p_linear, float p_angular){
-    m_wheelsVelocityTarget[Encoder::LEFT] =  p_linear;//(p_linear + p_angular * m_lengthWheels * 0.5)/m_wheelLeftRadius;
-    m_wheelsVelocityTarget[Encoder::RIGHT] = p_angular;//(p_linear - p_angular * m_lengthWheels * 0.5)/m_wheelRightRadius;
+    m_wheelsVelocityTarget[Encoder::LEFT]  = (p_linear + p_angular * m_lengthWheels * 0.5)/m_wheelLeftRadius;
+    m_wheelsVelocityTarget[Encoder::RIGHT] = (p_linear - p_angular * m_lengthWheels * 0.5)/m_wheelRightRadius;
     
     VelocityControllerLeft->setSetPoint(m_wheelsVelocity[Encoder::LEFT]);
     VelocityControllerRight->setSetPoint(m_wheelsVelocity[Encoder::RIGHT]);
@@ -101,7 +101,7 @@ void bra::DiffRobot::run(){
     m_wheelsVelocity[Encoder::RIGHT] = ((2 * m_PI * m_wheelRightRadius) * EncoderRight->readPulse()) / (VelocityControllerRight->getInterval() * EncoderRight->getResolution());
     m_velocity[LINEAR]  = ((m_wheelsVelocity[Encoder::LEFT]) + (m_wheelsVelocity[Encoder::RIGHT])) / 2;
     m_velocity[ANGULAR] = ((m_wheelsVelocity[Encoder::LEFT]) - (m_wheelsVelocity[Encoder::RIGHT])) / m_lengthWheels;
-    /* //![FIXING] Modeling the system for PID controller.
+    // //![FIXING] Modeling the system for PID controller.
     // Feedback PID controller
     VelocityControllerLeft->setProcessValue(m_wheelsVelocity[Encoder::LEFT]);
     VelocityControllerRight->setProcessValue(m_wheelsVelocity[Encoder::RIGHT]);
@@ -110,8 +110,9 @@ void bra::DiffRobot::run(){
     float controllerOutput[2];
     controllerOutput[Encoder::LEFT] = VelocityControllerLeft->compute();
     controllerOutput[Encoder::RIGHT] = VelocityControllerRight->compute();
-    */
+    m_velocity[LINEAR] = controllerOutput[Encoder::LEFT];
+
     // Set new PWM
-    MotorLeft->setPWM(  m_wheelsVelocityTarget[0] );
-    MotorRight->setPWM( m_wheelsVelocityTarget[1] );
+    MotorLeft->setPWM(0);
+    MotorRight->setPWM(0);
 }

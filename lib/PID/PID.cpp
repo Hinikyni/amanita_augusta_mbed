@@ -68,6 +68,7 @@ PID::PID(float Kc, float tauI, float tauD, float interval) {
     processVariable_      = 0.0;
     prevProcessVariable_  = 0.0;
     controllerOutput_     = 0.0;
+    controllerOutputSum_  = 0.0;
     prevControllerOutput_ = 0.0;
 
     accError_ = 0.0;
@@ -117,7 +118,8 @@ void PID::setOutputLimits(float outMin, float outMax) {
     } else if (prevControllerOutput_ < 0) {
         prevControllerOutput_ = 0;
     }
-
+    // changed:
+    prevControllerOutput_ =0;
     outMin_  = outMin;
     outMax_  = outMax;
     outSpan_ = outMax - outMin;
@@ -220,6 +222,14 @@ void PID::setBias(float bias){
 
 }
 
+void PID::setDeadzone(float bottom, float top){
+    deadzoneTop_ = top;
+    deadzoneBottom_ = bottom;
+    
+    usingFeedForward = 1;
+    
+}
+
 float PID::compute() {
 
     //Pull in the input and setpoint, and scale them into percent span.
@@ -239,28 +249,42 @@ float PID::compute() {
     }
 
     float error = scaledSP - scaledPV;
-
+    
+    
     //Check and see if the output is pegged at a limit and only
     //integrate if it is not. This is to prevent reset-windup.
     if (!(prevControllerOutput_ >= 1 && error > 0) && !(prevControllerOutput_ <= 0 && error < 0)) {
         accError_ += error;
     }
-
+    
     //Compute the current slope of the input signal.
     float dMeas = (scaledPV - prevProcessVariable_) / tSample_;
 
-    float scaledBias = 0.0;
-
+    float scaledBias = 0;
+    float scaledDeadzoneTop = 0;
+    float scaledDeadzoneBottom = 1;
+    
     if (usingFeedForward) {
         scaledBias = (bias_ - outMin_) / outSpan_;
+        scaledDeadzoneTop = (deadzoneTop_ - outMin_) / outSpan_;
+        scaledDeadzoneBottom = (deadzoneBottom_ - outMin_) / outSpan_;
     }
 
     //Perform the PID calculation.
-    controllerOutput_ = scaledBias + Kc_ * (error + (tauR_ * accError_) - (tauD_ * dMeas));
-
+    controllerOutputSum_ =  Kc_ * (error + (tauR_ * accError_) - (tauD_ * dMeas));
+    
+    controllerOutput_ = controllerOutputSum_+prevControllerOutput_;
+    if (controllerOutput_ < scaledDeadzoneTop and controllerOutput_ > scaledDeadzoneBottom){
+        if (controllerOutputSum_ < 0){
+            controllerOutput_ = scaledDeadzoneBottom;
+        }
+        else if (controllerOutputSum_ > 0){
+            controllerOutput_ = scaledDeadzoneTop;
+        }
+    }
     //Make sure the computed output is within output constraints.
-    if (controllerOutput_ < 0.0) {
-        controllerOutput_ = 0.0;
+    if (controllerOutput_ < 0) {
+        controllerOutput_ = 0;
     } else if (controllerOutput_ > 1.0) {
         controllerOutput_ = 1.0;
     }
