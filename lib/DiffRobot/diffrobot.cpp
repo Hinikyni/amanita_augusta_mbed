@@ -3,7 +3,7 @@
 #include "diffrobot.hpp"
 #include <monsterdriver.hpp>
 #include <encoder.hpp>
-#include <PID.h>
+#include <pid.hpp>
 #include <string>
 
 bra::DiffRobot::DiffRobot(float p_wheelLeftRadius, float p_wheelRightRadius, float p_lengthWheels){
@@ -52,23 +52,18 @@ void bra::DiffRobot::setupEncoders(PinName p_phasePinALeft, PinName p_phasePinBL
     EncoderRight = new Encoder(p_phasePinARight, p_phasePinBRight, callbackRiseARight, callbackChangeBRight, p_resolutionRight, Encoder::RIGHT);
 }
 
-void bra::DiffRobot::setupController(float p_KpLeft, float p_KiLeft, float p_KdLeft, float p_KpRight, float p_KiRight, float p_KdRight, float p_interval) {
+void bra::DiffRobot::setupController(float p_KpLeft, float p_KiLeft, float p_KdLeft, float p_KpRight, float p_KiRight, float p_KdRight, int p_interval) {
     
-    VelocityControllerLeft = new PID(p_KpLeft, p_KiLeft, p_KdLeft, p_interval*0.001);
-    VelocityControllerRight = new PID(p_KpRight, p_KiRight, p_KdRight, p_interval*0.001);
-
-    VelocityControllerLeft->setOutputLimits(-1.0, 1.0);
-    VelocityControllerRight->setOutputLimits(-1.0, 1.0);
-    VelocityControllerLeft->setInputLimits(-1.0, 1.0);
-    VelocityControllerRight->setInputLimits(-1.0, 1.0);
+    VelocityControllerLeft = new PID(p_KpLeft, p_KiLeft, p_KdLeft, p_interval);
+    VelocityControllerRight = new PID(p_KpRight, p_KiRight, p_KdRight, p_interval);
 }
 
 void bra::DiffRobot::setVelocity(float p_linear, float p_angular){
-    m_wheelsVelocityTarget[Encoder::LEFT]  = (p_linear + p_angular * m_lengthWheels * 0.5)/m_wheelLeftRadius;
-    m_wheelsVelocityTarget[Encoder::RIGHT] = (p_linear - p_angular * m_lengthWheels * 0.5)/m_wheelRightRadius;
+    m_wheelsVelocityTarget[Encoder::LEFT]  = (p_linear + p_angular * m_lengthWheels * 0.5);
+    m_wheelsVelocityTarget[Encoder::RIGHT] = (p_linear - p_angular * m_lengthWheels * 0.5);
     
-    VelocityControllerLeft->setSetPoint(m_wheelsVelocity[Encoder::LEFT]);
-    VelocityControllerRight->setSetPoint(m_wheelsVelocity[Encoder::RIGHT]);
+    VelocityControllerLeft->setSetpoint(m_wheelsVelocityTarget[Encoder::LEFT]);
+    VelocityControllerRight->setSetpoint(m_wheelsVelocityTarget[Encoder::RIGHT]);
 }
 
 volatile float* bra::DiffRobot::getVelocity(){
@@ -97,22 +92,17 @@ bool bra::DiffRobot::getStatus(){
 void bra::DiffRobot::run(){
     // Update variables
     //? Wheel Speed = (2*pi*R)*(Pulses Counted / EncoderResolution) / (IntervalSinceLastCount)
-    m_wheelsVelocity[Encoder::LEFT] =  ((2 * m_PI * m_wheelLeftRadius) *  EncoderLeft->readPulse()) / (VelocityControllerLeft->getInterval() * EncoderLeft->getResolution());
-    m_wheelsVelocity[Encoder::RIGHT] = ((2 * m_PI * m_wheelRightRadius) * EncoderRight->readPulse()) / (VelocityControllerRight->getInterval() * EncoderRight->getResolution());
+    m_wheelsVelocity[Encoder::LEFT] =  ((2 * m_PI * m_wheelLeftRadius) *  EncoderLeft->readPulse()) / ( (VelocityControllerLeft->_interval * 0.001) * EncoderLeft->getResolution());
+    m_wheelsVelocity[Encoder::RIGHT] = ((2 * m_PI * m_wheelRightRadius) * EncoderRight->readPulse()) / ( (VelocityControllerRight->_interval * 0.001) * EncoderRight->getResolution());
     m_velocity[LINEAR]  = ((m_wheelsVelocity[Encoder::LEFT]) + (m_wheelsVelocity[Encoder::RIGHT])) / 2;
     m_velocity[ANGULAR] = ((m_wheelsVelocity[Encoder::LEFT]) - (m_wheelsVelocity[Encoder::RIGHT])) / m_lengthWheels;
     // //![FIXING] Modeling the system for PID controller.
-    // Feedback PID controller
-    VelocityControllerLeft->setProcessValue(m_wheelsVelocity[Encoder::LEFT]);
-    VelocityControllerRight->setProcessValue(m_wheelsVelocity[Encoder::RIGHT]);
-
     // Compute the PID controller
     float controllerOutput[2];
-    controllerOutput[Encoder::LEFT] = VelocityControllerLeft->compute();
-    controllerOutput[Encoder::RIGHT] = VelocityControllerRight->compute();
-    m_velocity[LINEAR] = controllerOutput[Encoder::LEFT];
+    controllerOutput[Encoder::LEFT] = VelocityControllerLeft->run(m_wheelsVelocity[Encoder::LEFT]);
+    controllerOutput[Encoder::RIGHT] = VelocityControllerRight->run(m_wheelsVelocity[Encoder::RIGHT]);
 
     // Set new PWM
-    MotorLeft->setPWM(0);
-    MotorRight->setPWM(0);
+    MotorLeft->setPWM( MotorLeft->getPWM() + controllerOutput[Encoder::LEFT] );
+    MotorRight->setPWM( MotorRight->getPWM() + controllerOutput[Encoder::RIGHT] );
 }

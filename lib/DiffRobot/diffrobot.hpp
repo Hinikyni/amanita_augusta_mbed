@@ -4,7 +4,7 @@
 #include <mbed.h>
 #include <monsterdriver.hpp>
 #include <encoder.hpp>
-#include <PID.h>
+#include <pid.hpp>
 
 namespace bra{
 
@@ -52,7 +52,7 @@ namespace bra{
                                     float p_KpLeft, float p_KiLeft, float p_KdLeft,
                                     // Right Motor
                                     float p_KpRight, float p_KiRight, float p_KdRight,
-                                    float p_interval
+                                    int p_interval
                                 );
 
             void setVelocity(float p_linear, float p_angular);   // Set Velocity in m/s and rad/s

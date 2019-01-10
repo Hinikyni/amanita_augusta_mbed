@@ -36,14 +36,14 @@ const float R_RESOLUTION = 341.1;
 
 // Robot PID Consts
 // Left Motor
-const float L_KP = 1.0, L_KI = 0.0, L_KD = 00;
+const float L_KP = 0.92, L_KI = 0.01, L_KD = 0.0;
 // Right Motor
-const float R_KP = 1.0, R_KI = 0.0, R_KD = 0;
+const float R_KP = 0.95, R_KI = 0.01, R_KD = 0.0;
 
 // Update
 const float RATE_MS = 150;  // [ms]
 const float RATE = RATE_MS/1000; // [s]
-
+const float MS2SEC = 0.001;
 // ROS Setup
 ros::NodeHandle node;
 // Messages
