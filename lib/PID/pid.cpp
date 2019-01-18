@@ -19,38 +19,38 @@ float bra::PID::run(double input){
     float P,I,D, PIDR;
 
     //* Proportional Action - 비례 *//
-    double pidError = this->_pidSetPoint - (input); 
+    double pidError = _pidSetPoint - (input); 
     unsigned long pidDeltaTime;
     if(_lastTime == 0){
         _Timer.start(); // 
         pidDeltaTime = 0;
     } else {
-        pidDeltaTime = _Timer.read_high_resolution_us() - this->_lastTime;
+        pidDeltaTime = _Timer.read_high_resolution_us() - _lastTime;
     }
-    this->_lastTime = _Timer.read_high_resolution_us();
+    _lastTime = _Timer.read_high_resolution_us();
     
     //* Integral Action - 적분 *//
-    this->_pidIntError += (pidError * pidDeltaTime * 0.000001); 
+    _pidIntError += ( (pidError + _pidLastError)/2 * pidDeltaTime * 0.000001); 
 
-    if(this->_pidIntError > this->_maxWindUp){
-        this->_pidIntError = this->_maxWindUp;
-    } else if (this->_pidIntError < this->_minWindUp){
-        this->_pidIntError = this->_minWindUp;
+    if(_pidIntError > _maxWindUp){
+        _pidIntError = _maxWindUp;
+    } else if (_pidIntError < _minWindUp){
+        _pidIntError = _minWindUp;
     }
     
     //* Diferencial Action - 미분*//
     float pidDifError; 
     if(pidDeltaTime) {
-        pidDifError = (pidError - this->_pidLastError)  / (pidDeltaTime * 0.000001);
+        pidDifError = (pidError - _pidLastError)  / (pidDeltaTime * 0.000001);
     } else {
         pidDifError = 0;
     }
 
-    this->_pidLastError = pidError;
+    _pidLastError = pidError;
 
-    P = (pidError) * this->_kP;
-    I = this->_pidIntError * this->_kI;
-    D = (pidDifError) * this->_kD;
+    P = (pidError) * _kP;
+    I = _pidIntError * _kI;
+    D = (pidDifError) * _kD;
 
     PIDR = P + I + D;
     
@@ -58,5 +58,5 @@ float bra::PID::run(double input){
 }
 
 void bra::PID::setSetpoint(float pidSetPoint){ //Set the Reference to PID
-    this->_pidSetPoint = pidSetPoint;
+    _pidSetPoint = pidSetPoint;
 }

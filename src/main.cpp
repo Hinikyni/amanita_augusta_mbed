@@ -5,14 +5,13 @@
 #include <geometry_msgs/Twist.h>
 #include <std_msgs/Float32.h>
 #include <std_msgs/Bool.h>
-#include <string>
 
 std::string robotName = "amanita_cecilia";
 
 // Publisher [ _mbed/ ]
 ros::Publisher sendVelocity("amanita_cecilia_mbed/velocity", &sendVelocityMsg);
-ros::Publisher sendLeftWheelVelocity("amanita_cecilia_mbed/left_wheel_velocity", &leftWheelVelocity);
-ros::Publisher sendRightWheelVelocity("amanita_cecilia_mbed/right_wheel_velocity", &rightWheelVelocity);
+//COMMENT1 ros::Publisher sendLeftWheelVelocity("amanita_cecilia_mbed/left_wheel_velocity", &leftWheelVelocity);
+//COMMENT1 ros::Publisher sendRightWheelVelocity("amanita_cecilia_mbed/right_wheel_velocity", &rightWheelVelocity);
 // Subscriber [ _pc/ ]
 ros::Subscriber<std_msgs::Bool> reciveTurnOff("amanita_cecilia_pc/enable", enableRobot);
 ros::Subscriber<geometry_msgs::Twist> receiveVelocity("amanita_cecilia_pc/cmd_vel", receiveVelocityFunc);
@@ -30,20 +29,19 @@ int main() {
 
 	node.initNode();
 	node.advertise(sendVelocity);
-	node.advertise(sendLeftWheelVelocity);
-	node.advertise(sendRightWheelVelocity);
+	//COMMENT1 node.advertise(sendLeftWheelVelocity);
+	//COMMENT1 node.advertise(sendRightWheelVelocity);
 	node.subscribe(receiveVelocity);
 	node.subscribe(reciveTurnOff);
 	
 	mbedRate.attach(&controlLoop, RATE);
 	mbedTimer.start();
 	while(true) {
-		if(mbedTimer.read_ms() >= RATE_MS/10){
+		if(mbedTimer.read_ms() >= RATE_MS/2.5){
 			node.spinOnce();
 			mbedTimer.reset();
 			// Disable robot motor if ROS connection has been lost
-			if(!node.connected() && Robot.getStatus()) { Robot.disable(); }
-			else if(node.connected() && !Robot.getStatus()) { Robot.enable(); }
+			if(!node.connected() && Robot.getStatus()) { Robot.setVelocity(0, 0); }
 		}
 	}
 }
@@ -56,11 +54,11 @@ void controlLoop(){
 	sendVelocityMsg.angular.z = velocity[bra::DiffRobot::ANGULAR];
 	sendVelocity.publish(&sendVelocityMsg); // Linear and Angular Velocity
 
-	leftWheelVelocity.data = Robot.getVelocity(bra::Encoder::LEFT);  	
-	rightWheelVelocity.data = Robot.getVelocity(bra::Encoder::RIGHT); 	
-
-	sendLeftWheelVelocity.publish(&leftWheelVelocity);	// Left Wheel Velocity
-	sendRightWheelVelocity.publish(&rightWheelVelocity);// Right Wheel Velocity
+	//COMMENT1 leftWheelVelocity.data = Robot.getVelocity(bra::Encoder::LEFT);  	
+	//COMMENT1 rightWheelVelocity.data = Robot.getVelocity(bra::Encoder::RIGHT); 	
+	
+	//COMMENT1 sendLeftWheelVelocity.publish(&leftWheelVelocity);	// Left Wheel Velocity
+	//COMMENT1 sendRightWheelVelocity.publish(&rightWheelVelocity);// Right Wheel Velocity
 }
 
 void receiveVelocityFunc(const geometry_msgs::Twist& msg){
