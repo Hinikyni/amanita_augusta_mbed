@@ -17,8 +17,11 @@ namespace bra{
             volatile float m_velocity[2]; // Linear and Angular Velocity
             volatile float m_wheelsVelocityTarget[2]; // Desired Wheels Velocity
             volatile float m_wheelsVelocity[2]; // Wheels Velocity
-        
+            volatile unsigned long m_lastTime;
+            Timer m_Timer;
+
             const float m_PI = 3.14159265359;
+            const float m_MICROS2SEC = 0.000001;
         public:
             DiffRobot(float p_wheelLeftRadius, float p_wheelRightRadius, float p_lengthWheels);
             ~DiffRobot();

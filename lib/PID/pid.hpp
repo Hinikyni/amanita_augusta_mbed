@@ -6,19 +6,19 @@ namespace bra{
     class PID{
         private:
 
-            volatile float _kP, _kI, _kD;
+            volatile double _kP, _kI, _kD;
             volatile double _pidSetPoint, 
                            _pidLastError,
                            _pidIntError;
             volatile unsigned long _lastTime;
-            volatile float _maxWindUp, _minWindUp;
+            volatile double _maxWindUp, _minWindUp;
             Timer _Timer;
 
         public:
             int _interval;
-            PID(float Kp, float Ki, float Kd, int interval);
-            float run(double);
-            void setSetpoint(float);
+            PID(double Kp, double Ki, double Kd, int interval);
+            double run(double);
+            void setSetpoint(double);
     };
 }
 

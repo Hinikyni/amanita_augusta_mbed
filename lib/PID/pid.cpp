@@ -1,7 +1,7 @@
 #include <mbed.h>
 #include "pid.hpp"
 
-bra::PID::PID(float Kp, float Ki, float Kd, int interval){
+bra::PID::PID(double Kp, double Ki, double Kd, int interval){
     _kP = Kp;
     _kI = Ki;
     _kD = Kd;
@@ -15,8 +15,8 @@ bra::PID::PID(float Kp, float Ki, float Kd, int interval){
     _minWindUp = -1.0;
 }
 
-float bra::PID::run(double input){
-    float P,I,D, PIDR;
+double bra::PID::run(double input){
+    double P,I,D, PIDR;
 
     //* Proportional Action - 비례 *//
     double pidError = _pidSetPoint - (input); 
@@ -31,7 +31,7 @@ float bra::PID::run(double input){
     
     //* Integral Action - 적분 *//
     _pidIntError += ( (pidError + _pidLastError)/2 * pidDeltaTime * 0.000001); 
-
+    if(pidError == 0) _pidIntError = 0;
     if(_pidIntError > _maxWindUp){
         _pidIntError = _maxWindUp;
     } else if (_pidIntError < _minWindUp){
@@ -39,7 +39,7 @@ float bra::PID::run(double input){
     }
     
     //* Diferencial Action - 미분*//
-    float pidDifError; 
+    double pidDifError; 
     if(pidDeltaTime) {
         pidDifError = (pidError - _pidLastError)  / (pidDeltaTime * 0.000001);
     } else {
@@ -57,6 +57,6 @@ float bra::PID::run(double input){
     return (PIDR);
 }
 
-void bra::PID::setSetpoint(float pidSetPoint){ //Set the Reference to PID
+void bra::PID::setSetpoint(double pidSetPoint){ //Set the Reference to PID
     _pidSetPoint = pidSetPoint;
 }
