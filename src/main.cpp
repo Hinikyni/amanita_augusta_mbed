@@ -10,8 +10,8 @@ std::string robotName = "amanita_cecilia";
 
 // Publisher [ _mbed/ ]
 ros::Publisher sendVelocity("amanita_cecilia_mbed/velocity", &sendVelocityMsg);
-//COMMENT1 ros::Publisher sendLeftWheelVelocity("amanita_cecilia_mbed/left_wheel_velocity", &leftWheelVelocity);
-//COMMENT1ros::Publisher sendRightWheelVelocity("amanita_cecilia_mbed/right_wheel_velocity", &rightWheelVelocity);
+ros::Publisher sendLeftWheelVelocity("amanita_cecilia_mbed/left_wheel_velocity", &leftWheelVelocity);
+ros::Publisher sendRightWheelVelocity("amanita_cecilia_mbed/right_wheel_velocity", &rightWheelVelocity);
 // Subscriber [ _pc/ ]
 ros::Subscriber<std_msgs::Bool> reciveTurnOff("amanita_cecilia_pc/enable", enableRobot);
 ros::Subscriber<geometry_msgs::Twist> receiveVelocity("amanita_cecilia_pc/cmd_vel", receiveVelocityFunc);
@@ -28,8 +28,8 @@ int main() {
 
 	node.initNode();
 	node.advertise(sendVelocity);
-	//COMMENT1node.advertise(sendLeftWheelVelocity);
-	//COMMENT1node.advertise(sendRightWheelVelocity);
+	node.advertise(sendLeftWheelVelocity);
+	node.advertise(sendRightWheelVelocity);
 	node.subscribe(receiveVelocity);
 	node.subscribe(reciveTurnOff);
 	
@@ -47,17 +47,18 @@ void controlLoop(){
 	volatile float* velocity = Robot.getVelocity();
 	sendVelocityMsg.linear.x = velocity[bra::DiffRobot::LINEAR];
 	sendVelocityMsg.angular.z = velocity[bra::DiffRobot::ANGULAR];
-	sendVelocity.publish(&sendVelocityMsg); // Linear and Angular Velocity
-
-	//COMMENT1leftWheelVelocity.data = Robot.getVelocity(bra::Encoder::LEFT);  	
-	//COMMENT1rightWheelVelocity.data = Robot.getVelocity(bra::Encoder::RIGHT); 	
 	
-	//COMMENT1sendLeftWheelVelocity.publish(&leftWheelVelocity);	// Left Wheel Velocity
-	//COMMENT1sendRightWheelVelocity.publish(&rightWheelVelocity);// Right Wheel Velocity
+	sendVelocity.publish(&sendVelocityMsg); // Linear and Angular Velocity
+	leftWheelVelocity.data = Robot.getVelocity(bra::Encoder::LEFT);  	
+	rightWheelVelocity.data = Robot.getVelocity(bra::Encoder::RIGHT); 	
+	
+	sendLeftWheelVelocity.publish(&leftWheelVelocity);	// Left Wheel Velocity
+	sendRightWheelVelocity.publish(&rightWheelVelocity);// Right Wheel Velocity
 }
 
 void receiveVelocityFunc(const geometry_msgs::Twist& msg){
 	Robot.setVelocity(msg.linear.x, msg.angular.z);
+
 }
 
 void enableRobot(const std_msgs::Bool& msg){

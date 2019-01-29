@@ -106,8 +106,12 @@ void bra::DiffRobot::run(){
     }
     // Update variables
     //? Wheel Speed = (2*pi*R)*(Pulses Counted / EncoderResolution) / (IntervalSinceLastCount)
-    m_wheelsVelocity[Encoder::LEFT]  = ((2 * m_PI * m_wheelLeftRadius) *  EncoderLeft->readPulse()) / ( (deltaTime * m_MICROS2SEC ) * EncoderLeft->getResolution());
-    m_wheelsVelocity[Encoder::RIGHT] = ((2 * m_PI * m_wheelRightRadius) * EncoderRight->readPulse()) / ( (deltaTime * m_MICROS2SEC ) * EncoderRight->getResolution());
+    int tickLeft = EncoderLeft->readPulse();
+    int tickRight = EncoderRight->readPulse();
+    if(deltaTime != 0) {
+        m_wheelsVelocity[Encoder::LEFT]  = ((2 * m_PI * m_wheelLeftRadius) *  tickLeft) / ( (deltaTime * m_MICROS2SEC ) * EncoderLeft->getResolution());
+        m_wheelsVelocity[Encoder::RIGHT] = ((2 * m_PI * m_wheelRightRadius) * tickRight) / ( (deltaTime * m_MICROS2SEC ) * EncoderRight->getResolution());
+    }
     m_velocity[LINEAR]  = ((m_wheelsVelocity[Encoder::RIGHT]) + (m_wheelsVelocity[Encoder::LEFT])) / 2;
     m_velocity[ANGULAR] = ((m_wheelsVelocity[Encoder::RIGHT]) - (m_wheelsVelocity[Encoder::LEFT])) / m_lengthWheels;
     // //![FIXING] Modeling the system for PID controller.

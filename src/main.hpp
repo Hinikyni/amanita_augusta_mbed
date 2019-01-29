@@ -30,9 +30,9 @@ const PinName R_PHASE_A = PB_1;
 const PinName R_PHASE_B = PB_2;
 // Robot Encoder Settings
 // Left Wheel
-const float L_RESOLUTION = 368;
+const float L_RESOLUTION = 374;
 // Right Wheel
-const float R_RESOLUTION = 370;
+const float R_RESOLUTION = 374;
 
 // Robot PID Consts
 // Left Motor
@@ -41,7 +41,7 @@ const float L_KP = 0.9, L_KI = 10.56, L_KD = 0.0;
 const float R_KP = 0.9, R_KI = 11.16, R_KD = 0.0;
 
 // Update
-const float RATE_MS = 60;  // [ms]
+const float RATE_MS = 50;  // [ms]
 const float RATE = RATE_MS/1000; // [s]
 const float MS2SEC = 0.001;
 // ROS Setup
